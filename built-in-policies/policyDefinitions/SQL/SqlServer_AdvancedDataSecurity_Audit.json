@@ -1,11 +1,11 @@
 {
   "properties": {
-    "displayName": "Advanced data security should be enabled on your SQL servers",
+    "displayName": "Azure Defender for SQL should be enabled for unprotected Azure SQL servers",
     "policyType": "BuiltIn",
     "mode": "Indexed",
     "description": "Audit SQL servers without Advanced Data Security",
     "metadata": {
-      "version": "1.0.0",
+      "version": "2.0.1",
       "category": "SQL"
     },
     "parameters": {
@@ -24,8 +24,16 @@
     },
     "policyRule": {
       "if": {
-        "field": "type",
-        "equals": "Microsoft.Sql/servers"
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Sql/servers"
+          },
+          {
+            "field": "kind",
+            "notContains": "analytics"
+          }
+        ]
       },
       "then": {
         "effect": "[parameters('effect')]",

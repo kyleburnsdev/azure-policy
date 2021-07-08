@@ -2,11 +2,10 @@
    "properties": {
       "displayName": "Enable Azure Monitor for VMs",
       "policyType": "BuiltIn",
-      "description": "Enable Azure Monitor for the Virtual Machines (VMs) in the specified scope (Management group, Subscription or resource group). Takes Log Analytics workspace as parameter.",
+      "description": "Enable Azure Monitor for the virtual machines (VMs) in the specified scope (management group, subscription or resource group). Takes Log Analytics workspace as parameter.",
       "metadata": {
-         "version": "1.0.0-preview",
-         "category": "Monitoring",
-         "preview": true
+         "version": "2.0.0",
+         "category": "Monitoring"
       },
       "parameters": {
          "logAnalytics_1": {
@@ -36,6 +35,15 @@
       },
       "policyDefinitions": [
          {
+            "policyDefinitionReferenceId": "LogAnalyticsExtension_Windows_HybridVM_Deploy",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/69af7d4a-7b18-4044-93a9-2651498ef203",
+            "parameters": {
+               "logAnalytics": {
+                  "value": "[parameters('logAnalytics_1')]"
+               }
+            }
+         },
+         {
             "policyDefinitionReferenceId": "LogAnalyticsExtension_Windows_VM_Deploy",
             "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/0868462e-646c-4fe3-9ced-a733534b6a2c",
             "parameters": {
@@ -44,6 +52,15 @@
                },
                "listOfImageIdToInclude": {
                   "value": "[parameters('listOfImageIdToInclude_windows')]"
+               }
+            }
+         },
+         {
+            "policyDefinitionReferenceId": "LogAnalyticsExtension_Linux_HybridVM_Deploy",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/9d2b61b4-1d14-4a63-be30-d4498e7ad2cf",
+            "parameters": {
+               "logAnalytics": {
+                  "value": "[parameters('logAnalytics_1')]"
                }
             }
          },
@@ -60,6 +77,10 @@
             }
          },
          {
+            "policyDefinitionReferenceId": "DependencyAgentExtension_Windows_HybridVM_Deploy",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/91cb9edd-cd92-4d2f-b2f2-bdd8d065a3d4"
+         },
+         {
             "policyDefinitionReferenceId": "DependencyAgentExtension_Windows_VM_Deploy",
             "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/1c210e94-a481-4beb-95fa-1571b434fb04",
             "parameters": {
@@ -67,6 +88,10 @@
                   "value": "[parameters('listOfImageIdToInclude_windows')]"
                }
             }
+         },
+         {
+            "policyDefinitionReferenceId": "DependencyAgentExtension_Linux_HybridVM_Deploy",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/deacecc0-9f84-44d2-bb82-46f32d766d43"
          },
          {
             "policyDefinitionReferenceId": "DependencyAgentExtension_Linux_VM_Deploy",

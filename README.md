@@ -1,6 +1,6 @@
 # Azure Policy Samples
 
-This repository contains built-in samples of Azure Policies that can be used as reference for creating and assigning policies to your subscriptions and resource groups. For additional samples with descriptions, see [Policy samples](https://docs.microsoft.com/azure/governance/policy/samples/) on docs.microsoft.com.
+This repository contains built-in samples of Azure Policies that can be used as reference for creating and assigning policies to your subscriptions and resource groups. For easy search of all built-in  with descriptions, see [Policy samples](https://docs.microsoft.com/azure/governance/policy/samples/) on docs.microsoft.com.
 
 For custom policy samples, check out our Community repo! (https://github.com/Azure/Community-Policy)
 
@@ -11,10 +11,6 @@ To contribute, please submit your policies to our Community repo! (https://githu
 ## Reporting Samples Issues
 
 If you discover a problem with any of the samples published here that isn't already reported in [**Issues**](https://github.com/Azure/azure-policy/issues), open a [**New issue**](https://github.com/Azure/azure-policy/issues/new/choose).
-
-# Azure Policy Support
-
-Support for Azure Policy has transitioned to standard Azure support channels so this repository will no longer be monitored for support requests. Issues opened here are only to report specific problems with the samples published in this repository. Any other issues will be closed with a pointer to this notice. Check [**here**](#getting-support) for information about getting support for Azure Policy.
 
 # Azure Policy Known Issues
 
@@ -28,6 +24,7 @@ Check here for a current list of [**known issues**](#known-issues) for Azure Pol
 - [How to assign policies using the Azure portal](https://docs.microsoft.com/azure/governance/policy/assign-policy-portal)
 - [How to assign policies using Azure PowerShell](https://docs.microsoft.com/azure/governance/policy/assign-policy-powershell)
 - [How to assign policies using Azure CLI](https://docs.microsoft.com/azure/governance/policy/assign-policy-azurecli)
+- [Export and manage Azure Policy resources as code with GitHub](https://docs.microsoft.com/azure/governance/policy/tutorials/policy-as-code-github)
 - [Definition structure](https://docs.microsoft.com/azure/governance/policy/concepts/definition-structure)
 - [Understand Policy effects](https://docs.microsoft.com/azure/governance/policy/concepts/effects)
 - [Audit VMs with Guest Configuration](https://docs.microsoft.com/azure/governance/policy/concepts/guest-configuration)
@@ -51,9 +48,6 @@ Check here for a current list of [**known issues**](#known-issues) for Azure Pol
   - [Remediations](https://docs.microsoft.com/rest/api/policy-insights/remediations)
   - [Guest Configuration (preview)](https://docs.microsoft.com/rest/api/guestconfiguration/)
 
-## Other
-
-- [Video - Build 2018](https://channel9.msdn.com/events/Build/2018/THR2030)
 
 ## Getting Support
 
@@ -73,7 +67,7 @@ Previously, this repository was the official channel to open requests for new al
 If you have questions you haven't been able to answer from the [**Azure Policy documentation**](https://docs.microsoft.com/azure/governance/policy), there are a few places that host discussions on Azure Policy:
 
  - [Microsoft Tech Community](https://techcommunity.microsoft.com/) [**Azure Governance conversation space**](https://techcommunity.microsoft.com/t5/Azure-Governance/bd-p/AzureGovernance)
- - Join the Monthly Call on Azure Governance (register [here](https://aka.ms/joinazuregovernance))
+ - Join the Customer Call on Azure Governance (register [here](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbRxn7UD7lweFDnmuLj72r6E1UN1dLNTBZUVMyNVpHUjJLRE5PVDVGNlkyOC4u)) Latest Customer call (Sep 3rd) recording can be found [here](https://youtu.be/ONKn9XMPZCs)
  - Search old [**issues in this repo**](https://github.com/Azure/azure-policy/issues)
  - Search or add to Azure Policy discussions on [**StackOverflow**](https://stackoverflow.com/questions/tagged/azure-policy+or+azure+policy)
 
@@ -101,7 +95,6 @@ All cases of known resource types with anomalous policy behavior are listed here
 
 In some cases, certain RPs may return incomplete or otherwise limited or missing information about resources of a given type. The Azure Policy engine is unable to determine the compliance of any resources of such a type. Below are listed the known resource types exhibiting this problem.
 
-- Microsoft<span></span>.Web/sites/siteConfig
 - Microsoft<span></span>.Web/sites/config/* (except Microsoft<span></span>.Web/sites/config/web)
 
 Currently, there is no plan to change this behavior for the above Microsoft.Web resource types. If this scenario is important to you, please [open a support ticket](https://azure.microsoft.com/support/create-ticket/) with the Web team.
@@ -115,15 +108,19 @@ Currently, there is no plan to change this behavior for the above Microsoft.Web 
               "name": "default"
             }
    ```
+- Microsoft.DataLakeStore/accounts
+  - This type behaves similarly to Microsoft.Sql/servers/autidintSettings. Compliance of some fields cannot be determined except in AuditIfNotExits and DeployIfNotExists.
+- Microsoft.Sql 'master' database 
+   - This type behaves similarly to Microsoft.Sql/servers/auditingSettings. Compliance of some fields cannot be determined except in `AuditIfNotExists` and `DeployIfNotExists` policies.
 - Microsoft.Compute/virtualMachines/instanceView
+  - Collection query of this type is missing many properties, which means compliance checks may not work.
+- Microsoft.Network/virtualNetworks/subnets
+  - The routeTable property of this type is populated differently when queried than when created or updated unless non-standard parameters are provided. This means deny policies will work, but compliance audits will generally not be correct.
 
-The potential for fixing these resource types is still under investigation.
 
 ### Resource Type not correctly published by resource provider
 
-In some cases, a resource provider may implement a resource type, but not correctly publish it to the Azure Resource Manager. The result of this is that Azure Policy is unable to discover the type in order to determine compliance. In some cases, this still allows deny policies to work, but compliance results will usually be incorrect. These resource types exhibit this behavior:
-
-- Microsoft.Storage/storageAccounts/blobServices
+In some cases, a resource provider may implement a resource type, but not correctly publish it to the Azure Resource Manager. The result of this is that Azure Policy is unable to discover the type in order to determine compliance. In some cases, this still allows deny policies to work, but compliance results will usually be incorrect. Currently, all resource types known to have this behavior have been corrected.
 
 These resource types previously exhibited this behavior, but are now removed:
 
@@ -138,6 +135,7 @@ These resource types previously exhibited this behavior but have been fixed:
 - Microsoft.ServiceBus/namespaces/networkrulesets
 - Microsoft.Sql/servers/databases/backupShortTermRetentionPolicies
 - Microsoft.ApiManagement/service/portalsettings/delegation
+- Microsoft.Storage/storageAccounts/blobServices
 
 ### Resource management that bypasses Azure Resource Manager
 
@@ -145,9 +143,9 @@ Resource providers are free to implement their own resource management operation
 
 - Microsoft.Storage/storageAccounts/blobServices/containers
 
-The storage team is working on implementing Azure Policy on its dataplane operations to address this scenario. This is expected to first be available in the middle of 2020.
+The storage team has implemented blob public access control on storage accounts to address this scenario. Per-account public access control of blobs can be controlled by Azure Policy using the new alias ```Microsoft.Storage/storageAccounts/allowBlobPublicAccess```.
 
-Note that Azure policies for dataplane operations of certain targeted resource providers is also under active development.
+Note that Azure policies for dataplane operations of certain targeted resource providers is also supported or under active development.
 
  - Microsoft.Sql/servers/firewallRules
 
@@ -159,12 +157,18 @@ Service Fabric applications created via direct requests to the Service Fabric cl
 
 ### Nonstandard creation pattern
 
-In a few instances, the creation pattern of a resource type doesn't follow normal REST patterns. In these cases, deny policies may not work or may only work for some properties. For example, certain resource types may PUT only a subset of the properties of the resource type to create the entire resource. With such types the resource could be created with a non-compliant value even though a deny policy exists to prevent it. A similar result may occur if a set of resource types can be created using a collection PUT. Known resource types that exhibit this class of behavior:
+In a few instances, the creation pattern of a resource type doesn't follow normal REST patterns. In these cases, deny policies may not work or may only work for some properties. For example, certain resource types may PUT only a subset of the properties of the resource type to create the entire resource. With such types the resource provider selects the values for properties not provided in the payload. Such a resource might be created with a non-compliant value even though a deny policy exists to prevent it. A similar result may occur if a set of resource types can be created using a collection PUT. Known resource types that exhibit this class of behavior:
 
 - Microsoft.Sql/servers/firewallRules
 - Microsoft.Automation/certificates
+- Microsoft.Security/securityContacts
 
-There is currently no plan to change this behavior. If this scenario is important to you, please [open a support ticket](https://azure.microsoft.com/support/create-ticket/) with the Azure SQL or Automation team.
+There is currently no plan to change this behavior for these types. If this scenario is important to you, please [open a support ticket](https://azure.microsoft.com/support/create-ticket/) with the Azure SQL or Automation team.
+
+### Nonstandard update pattern through Azure Portal
+In some cases, a resource provider can choose not to follow normal REST patterns when a resource is updated via the portal. In these cases, a partial PUT request is done instead of a PATCH request causing the policy engine to evaluate as if some properties do not have values. 
+
+- Microsoft.Web/sites 
 
 ### Provider pass-through to non Azure Resource Manager resources
 
@@ -185,8 +189,6 @@ Since custom policies use aliases directly, it is usually not possible to update
 
 - Microsoft.Sql/servers/databases/requestedServiceObjectiveName.v2
 
-*This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.*
-
 ### Optional or auto-generated resource property that bypasses policy evaluation
 
 In a few instances, when creating a resource from Azure Portal, the property is not set in the PUT request payload. When the request reaches the resource provider, the resource provider generates the property and sets the value. Because the property is not in the request payload, the policy cannot evaluate the property. Known resource fields that exhibit this class of behavior:
@@ -200,3 +202,42 @@ In a few instances, when creating a resource from Azure Portal, the property is 
 Using this type of alias in the existence condition of auditIfNotExists or deployIfNotExists policies works correctly. These two kinds of effects will get the full resource content to evaluate the existence condition. The property is always present in GET request payloads.
 
 Using this type of alias in audit/deny/append effect policies works partially. The compliance scan result will be correct for existing resources. However, when creating/updating the resource, there will be no audit events for audit effect policies and no deny or append behaviors for deny/append effect policies because of the missing property in the request payload.
+
+- Microsoft.Databricks/* (Creation time only)
+
+All Databricks resources bypass policy enforcement at creation time. Databricks resources will have policy enforcement post-creation. To provide feedback on this, please leverage the [Databricks UserVoice](https://feedback.azure.com/forums/909463-azure-databricks). 
+
+### Resources that are exempt from policy evaluation
+
+- Microsoft.Resources/deployments
+
+### Resource types that exceed current enforcement and compliance scale
+
+There some resource types that are generated at very high scale. These are not suitable for management by Azure Policy because the enforcement and compliance checks create overhead that can negatively impact the performance of the API itself. Most of these are not significant policy scenarios, but there are a few exceptions.
+
+These are resource types that have significant policy scenarios, but are not supported by Azure Policy due to the above scalability considerations:
+
+- Microsoft.ServiceBus/namespaces/topics
+- Microsoft.ServiceBus/namespaces/topics/authorizationRules
+- Microsoft.ServiceBus/namespaces/topics/subscriptions
+- Microsoft.ServiceBus/namespaces/topics/subscriptions/rules
+
+Work to increase the scale that policy can be performantly applied to resource types is in progress. Planned availability date is not yet determined.
+
+### Azure Policy Add-on not compatible on AKS Kubernetes 1.19 (preview) version
+1.19 clusters will return this error via gatekeeper controller and policy webhook pods: 
+ certificate relies on legacy Common Name field, use SANs or temporarily enable Common Name matching 
+
+Mitigation: Avoid using K8s 1.19 (preview) with the Azure Policy add-on. The add-on can be used with any GA supported version such as 1.16, 1.17, or 1.18. 
+Feature team is actively working on fixing this issue. GitHub issue tracking this on AKS side https://github.com/Azure/AKS/issues/1869 
+
+
+### Indexed Resource types always non-complaint to tagging policies 
+As of February 2021, index resources that don't support tags aren't applicable to polices that inspect tags.
+
+### Alias changes  
+
+May 2020: Microsoft.DocumentDB/databaseAccounts/ipRangeFilter updated from a string property to an array.  Please re-author your custom definitions to support the property as an array.  
+July 2020: The alias Microsoft.Sql/servers/securityAlertPolicies/emailAddresses[] and related policies were deprecated. 
+
+*This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.*

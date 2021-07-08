@@ -1,21 +1,32 @@
 {
     "properties": {
-        "displayName": "[Preview]: Deploy Dependency Agent for Windows Virtual Machine Scale Sets",
+        "displayName": "Deploy - Configure Dependency agent to be enabled on Windows virtual machine scale sets",
         "policyType": "BuiltIn",
         "mode": "Indexed",
-        "description": "Deploy Dependency Agent for Windows Virtual Machine Scale Sets if the VM Image (OS) is in the list defined and the agent is not installed. The list of OS images will be updated over time as support is updated. Note: if your scale set upgradePolicy is set to Manual, you need to apply the extension to the all VMs in the set by calling upgrade on them. In CLI this would be az vmss update-instances.",
+        "description": "Deploy Dependency agent for Windows virtual machine scale sets if the virtual machine image is in the list defined and the agent is not installed. If your scale set upgradePolicy is set to Manual, you need to apply the extension to all the virtual machines in the set by updating them.",
         "metadata": {
-            "version": "1.0.0-preview",
-            "category": "Monitoring",
-            "preview": true
+            "version": "2.0.0",
+            "category": "Monitoring"
         },
         "parameters": {
             "listOfImageIdToInclude": {
                 "type": "Array",
                 "defaultValue": [],
                 "metadata": {
-                    "displayName": "Optional: List of VM images that have supported Windows OS to add to scope",
+                    "displayName": "Optional: List of virtual machine images that have supported Windows OS to add to scope",
                     "description": "Example value: '/subscriptions/<subscriptionId>/resourceGroups/YourResourceGroup/providers/Microsoft.Compute/images/ContosoStdImage'"
+                }
+            },
+            "effect": {
+                "type": "string",
+                "defaultValue": "DeployIfNotExists",
+                "allowedValues": [
+                    "DeployIfNotExists",
+                    "Disabled"
+                ],
+                "metadata": {
+                    "displayName": "Effect",
+                    "description": "Enable or disable the execution of the policy"
                 }
             }
         },
@@ -177,6 +188,22 @@
                                 "allOf": [
                                     {
                                         "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "MicrosoftDynamicsAX"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "equals": "Dynamics"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageSKU",
+                                        "equals": "Pre-Req-AX7-Onebox-V4"
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
                                         "equals": "microsoft-ads"
                                     },
                                     {
@@ -202,7 +229,7 @@
                 ]
             },
             "then": {
-                "effect": "deployIfNotExists",
+                "effect": "[parameters('effect')]",
                 "details": {
                     "type": "Microsoft.Compute/virtualMachineScaleSets/extensions",
                     "roleDefinitionIds": [
@@ -235,7 +262,7 @@
                                     }
                                 },
                                 "variables": {
-                                    "vmExtensionName": "DependencyAgent",
+                                    "vmExtensionName": "DependencyAgentWindows",
                                     "vmExtensionPublisher": "Microsoft.Azure.Monitoring.DependencyAgent",
                                     "vmExtensionType": "DependencyAgentWindows",
                                     "vmExtensionTypeHandlerVersion": "9.7"
